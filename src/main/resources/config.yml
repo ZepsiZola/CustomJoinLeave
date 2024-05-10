@@ -1,0 +1,2 @@
+joinMessage: "<yellow>%player_name% <yellow>joined the game"
+leaveMessage: "<yellow>%player_name% <yellow>left the game"

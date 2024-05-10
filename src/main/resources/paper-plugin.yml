@@ -2,3 +2,10 @@ name: CustomJoinLeave
 version: '${project.version}'
 main: zepsizola.me.customjoinleave.CustomJoinLeave
 api-version: '1.20'
+
+dependencies:
+  server:
+    PlaceholderAPI:
+      # Load order is relative to the dependency. So here PlaceholderAPI loads before our plugin.
+      load: BEFORE
+      required: false
