@@ -1,0 +1,4 @@
+name: CustomJoinLeave
+version: '${project.version}'
+main: zepsizola.me.customjoinleave.CustomJoinLeave
+api-version: '1.20'
