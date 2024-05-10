@@ -9,3 +9,7 @@ dependencies:
       # Load order is relative to the dependency. So here PlaceholderAPI loads before our plugin.
       load: BEFORE
       required: false
+    LuckPerms:
+      # Load order is relative to the dependency. So here PlaceholderAPI loads before our plugin.
+      load: BEFORE
+      required: false
