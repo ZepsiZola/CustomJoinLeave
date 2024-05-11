@@ -5,3 +5,6 @@ permissions:
   silentjoin: "essentials.silentjoin"
   silentquit: "essentials.silentquit"
   vanish: "essentials.vanish"
+commands:
+  vanish-on: "essentials:vanish on"
+  vanish-off: "essentials:vanish off"

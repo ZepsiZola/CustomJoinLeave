@@ -35,6 +35,8 @@ public class CustomJoinLeave extends JavaPlugin implements Listener, CommandExec
     private final String configSilentJoinPermission = getConfig().getString("permissions.silentjoin", "essentials.silentjoin");
     private final String configSilentLeavePermission = getConfig().getString("permissions.silentquit", "essentials.silentquit");
     private final String configVanishPermission = getConfig().getString("permissions.vanish", "essentials.vanish");
+    private final String configVanishOnCommand = getConfig().getString("commands.vanish-on", "essentials:vanish on");
+    private final String configVanishOffCommand = getConfig().getString("commands.vanish-off", "essentials:vanish off");
 
     @Override
     public void onEnable() {
@@ -136,12 +138,12 @@ public class CustomJoinLeave extends JavaPlugin implements Listener, CommandExec
                 Component joinMessage = customMessage(configJoinMessage, player);
                 getLogger().info("--- VANISHJOIN ---" + PlainTextComponentSerializer.plainText().serialize(joinMessage));
                 broadcast(joinMessage);
-                player.performCommand("vanish off");
+                player.performCommand(configVanishOffCommand);
             } else if (command.getName().equalsIgnoreCase("vanishleave")) {
                 Component leaveMessage = customMessage(configLeaveMessage, player);
                 getLogger().info("--- VANISHLEAVE ---" + PlainTextComponentSerializer.plainText().serialize(leaveMessage));
                 broadcast(leaveMessage);
-                player.performCommand("vanish on");
+                player.performCommand(configVanishOnCommand);
             }
         } else {
             sender.sendMessage("You do not have permission to vanish.");
