@@ -32,6 +32,9 @@ public class CustomJoinLeave extends JavaPlugin implements Listener, CommandExec
     private boolean luckPermsEnabled = false;
     private final String configJoinMessage = getConfig().getString("joinMessage", "<yellow>%player_name% <yellow>joined the game");
     private final String configLeaveMessage = getConfig().getString("leaveMessage", "<yellow>%player_name% <yellow>left the game");
+    private final String configSilentJoinPermission = getConfig().getString("permissions.silentjoin", "essentials.silentjoin");
+    private final String configSilentLeavePermission = getConfig().getString("permissions.silentquit", "essentials.silentquit");
+    private final String configVanishPermission = getConfig().getString("permissions.vanish", "essentials.vanish");
 
     @Override
     public void onEnable() {
@@ -78,14 +81,14 @@ public class CustomJoinLeave extends JavaPlugin implements Listener, CommandExec
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        Component joinMessage = player.hasPermission("essentials.silentjoin") ? null : customMessage(configJoinMessage, player);
+        Component joinMessage = player.hasPermission(configSilentJoinPermission) ? null : customMessage(configJoinMessage, player);
         event.joinMessage(joinMessage);
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        Component quitMessage = player.hasPermission("essentials.silentquit") ? null : customMessage(configLeaveMessage, player);
+        Component quitMessage = player.hasPermission(configSilentLeavePermission) ? null : customMessage(configLeaveMessage, player);
         event.quitMessage(quitMessage);
     }
 
@@ -128,21 +131,21 @@ public class CustomJoinLeave extends JavaPlugin implements Listener, CommandExec
         } else { //Sender is player.
             player = ((Player) sender).getPlayer();
         }
-        if (player.hasPermission("essentials.vanish")) {
+        if (player.hasPermission(configVanishPermission)) {
             if (command.getName().equalsIgnoreCase("vanishjoin")) {
                 Component joinMessage = customMessage(configJoinMessage, player);
-                getLogger().info("About to broadcast: " + PlainTextComponentSerializer.plainText().serialize(joinMessage));
+                getLogger().info("--- VANISHJOIN ---" + PlainTextComponentSerializer.plainText().serialize(joinMessage));
                 broadcast(joinMessage);
                 player.performCommand("vanish off");
             } else if (command.getName().equalsIgnoreCase("vanishleave")) {
                 Component leaveMessage = customMessage(configLeaveMessage, player);
-                getLogger().info("About to broadcast: " + PlainTextComponentSerializer.plainText().serialize(leaveMessage));
+                getLogger().info("--- VANISHLEAVE ---" + PlainTextComponentSerializer.plainText().serialize(leaveMessage));
                 broadcast(leaveMessage);
                 player.performCommand("vanish on");
             }
         } else {
             sender.sendMessage("You do not have permission to vanish.");
         }
-        return false;
+        return true;
     }
 }
