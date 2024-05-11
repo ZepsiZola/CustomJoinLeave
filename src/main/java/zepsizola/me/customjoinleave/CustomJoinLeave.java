@@ -122,10 +122,10 @@ public class CustomJoinLeave extends JavaPlugin implements Listener, CommandExec
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         Player player;
-        if (sender instanceof Player == false && args.length == 0){ //If sender is console and provided no playername
+        if (!(sender instanceof Player) && args.length == 0){ //If sender is console and provided no playername
             sender.sendMessage("Usage: /" + label + " <player>");
             return true;
-        } else if (sender instanceof Player == false && args.length > 0){ //If sender is console and provided playername
+        } else if (!(sender instanceof Player) && args.length > 0){ //If sender is console and provided playername
             player = Bukkit.getPlayerExact(args[0]);
             if (player == null) {
                 sender.sendMessage("Player not found");
