@@ -1,2 +1,7 @@
 joinMessage: "<yellow>%player_name% <yellow>joined the game"
 leaveMessage: "<yellow>%player_name% <yellow>left the game"
+
+permissions:
+  silentjoin: "essentials.silentjoin"
+  silentquit: "essentials.silentquit"
+  vanish: "essentials.vanish"
