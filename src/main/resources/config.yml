@@ -8,7 +8,7 @@ leaveMessage: "<yellow>%player_name% <yellow>left the game"
 permissions:
   silentjoin: "essentials.silentjoin"
   silentquit: "essentials.silentquit"
-  vanish: "essentials.vanish"
+  vanish: "essentials.vanish" # This should be the permission to go into vanish-mode (handled by your vanish plugin e.g. EssentialsX).
 
 # Set this to whatever command handles vanish on your server.
 commands:
