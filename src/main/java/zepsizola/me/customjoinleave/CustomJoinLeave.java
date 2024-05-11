@@ -3,6 +3,7 @@ package zepsizola.me.customjoinleave;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.entity.Player;
@@ -77,49 +78,40 @@ public class CustomJoinLeave extends JavaPlugin implements Listener, CommandExec
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        Component joinMessage = customMessage(configJoinMessage, player); //Creates the message as a component
+        Component joinMessage = player.hasPermission("essentials.silentjoin") ? null : customMessage(configJoinMessage, player);
         event.joinMessage(joinMessage);
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        Component quitMessage = customMessage(configLeaveMessage, player); //Creates the message as a component
+        Component quitMessage = player.hasPermission("essentials.silentquit") ? null : customMessage(configLeaveMessage, player);
         event.quitMessage(quitMessage);
     }
 
     private Component customMessage (String message, Player player){
-        Component joinLeaveMessage = null;
-        if (!(player.hasPermission("essentials.silentjoin") || player.hasPermission("essentials.silentquit"))){
-            if (PAPIEnabled) { //Sets PAPI placeholders if PAPI is enabled
-                message = PlaceholderAPI.setPlaceholders(player, message);}
+        Component joinLeaveMessage;
+        if (PAPIEnabled) { //Sets PAPI placeholders if PAPI is enabled
+            message = PlaceholderAPI.setPlaceholders(player, message);}
 
-            if (luckPermsEnabled) {//Set
-                User user = luckPerms.getUserManager().getUser(player.getUniqueId());
-                //if (user.getCachedData() != null){
-                    String prefix_string = user.getCachedData().getMetaData().getPrefix(); //Gets namecolour prefix (might be null)
-                    String suffix_string = user.getCachedData().getMetaData().getSuffix();// gets tag &7.exe (might be null)
-                    prefix_string = prefix_string != null ? prefix_string.replace(SECTION_CHAR, AMPERSAND_CHAR) : ""; //Replaces § with &
-                    suffix_string = suffix_string != null ? suffix_string.replace(SECTION_CHAR, AMPERSAND_CHAR) : ""; //Replaces § with &
-                    //suffix_string = suffix_string.replace(SECTION_CHAR, AMPERSAND_CHAR);
-                    getLogger().info("Prefix string: " + prefix_string);
-                    getLogger().info("Suffix string: " + suffix_string);
-                    getLogger().info("Conversion happening...");
-                    prefix_string = MiniMessage.miniMessage().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(prefix_string));
-                    suffix_string = MiniMessage.miniMessage().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(suffix_string)); //Turns "&7.exe" into "<gray>.exe"
-                    getLogger().info("Prefix string: " + prefix_string);
-                    getLogger().info("Suffix string: " + suffix_string);
-
-                    message = message.replace("<prefix>", prefix_string);
-                    message = message.replace("<suffix>", suffix_string+"<reset>"); //replaces <suffix> with "<gray>.exe" in message
-            //}
-            joinLeaveMessage = MiniMessage.miniMessage().deserialize(message);}
+        if (luckPermsEnabled) {
+            User user = luckPerms.getUserManager().getUser(player.getUniqueId());
+            String prefix_string = user.getCachedData().getMetaData().getPrefix(); //Gets namecolour prefix (might be null)
+            String suffix_string = user.getCachedData().getMetaData().getSuffix();// gets tag &7.exe (might be null)
+            prefix_string = prefix_string != null ? prefix_string.replace(SECTION_CHAR, AMPERSAND_CHAR) : ""; //Replaces § with &
+            suffix_string = suffix_string != null ? suffix_string.replace(SECTION_CHAR, AMPERSAND_CHAR) : ""; //Replaces § with &
+            //getLogger().info("Prefix string: " + prefix_string);
+            //getLogger().info("Suffix string: " + suffix_string);
+            //getLogger().info("Conversion happening...");
+            prefix_string = MiniMessage.miniMessage().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(prefix_string));
+            suffix_string = MiniMessage.miniMessage().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(suffix_string)); //Turns "&7.exe" into "<gray>.exe"
+            //getLogger().info("Prefix string: " + prefix_string);
+            //getLogger().info("Suffix string: " + suffix_string);
+            message = message.replace("<prefix>", prefix_string);
+            message = message.replace("<suffix>", suffix_string+"<reset>");//replaces <suffix> with "<gray>.exe" in message
         }
+        joinLeaveMessage = MiniMessage.miniMessage().deserialize(message);
         return joinLeaveMessage;
-    }
-
-    private void fakeJoinLeave (String message, Player player){
-
     }
 
     @Override
@@ -136,16 +128,18 @@ public class CustomJoinLeave extends JavaPlugin implements Listener, CommandExec
         } else { //Sender is player.
             player = ((Player) sender).getPlayer();
         }
-
         if (player.hasPermission("essentials.vanish")) {
             if (command.getName().equalsIgnoreCase("vanishjoin")) {
                 Component joinMessage = customMessage(configJoinMessage, player);
+                getLogger().info("About to broadcast: " + PlainTextComponentSerializer.plainText().serialize(joinMessage));
                 broadcast(joinMessage);
                 player.performCommand("vanish off");
             } else if (command.getName().equalsIgnoreCase("vanishleave")) {
                 Component leaveMessage = customMessage(configLeaveMessage, player);
+                getLogger().info("About to broadcast: " + PlainTextComponentSerializer.plainText().serialize(leaveMessage));
                 broadcast(leaveMessage);
-                player.performCommand("vanish on");}
+                player.performCommand("vanish on");
+            }
         } else {
             sender.sendMessage("You do not have permission to vanish.");
         }
