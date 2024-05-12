@@ -122,17 +122,21 @@ public class CustomJoinLeave extends JavaPlugin implements Listener, CommandExec
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         Player player;
-        if (!(sender instanceof Player) && args.length == 0){ //If sender is console and provided no playername
-            sender.sendMessage("Usage: /" + label + " <player>");
-            return true;
-        } else if (!(sender instanceof Player) && args.length > 0){ //If sender is console and provided playername
-            player = Bukkit.getPlayerExact(args[0]);
-            if (player == null) {
-                sender.sendMessage("Player not found");
-                return true;}
-        } else { //Sender is player.
-            player = ((Player) sender).getPlayer();
+        if (!(sender instanceof Player)) { //If sender is not a player
+            if (args.length > 0) { //If a player name is provided
+                player = Bukkit.getPlayerExact(args[0]);
+                if (player == null) {
+                    sender.sendMessage("Player not found");
+                    return true;
+                }
+            } else { //If no player name is provided
+                sender.sendMessage("Usage: /" + label + " <player>");
+                return true;
+            }
+        } else { //If sender is a player
+            player = (Player) sender;
         }
+
         if (player.hasPermission(configVanishPermission)) {
             if (command.getName().equalsIgnoreCase("vanishjoin")) {
                 Component joinMessage = customMessage(configJoinMessage, player);
