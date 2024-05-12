@@ -97,7 +97,10 @@ public class CustomJoinLeave extends JavaPlugin implements Listener, CommandExec
     private Component customMessage (String message, Player player){
         Component joinLeaveMessage;
         if (PAPIEnabled) { //Sets PAPI placeholders if PAPI is enabled
-            message = PlaceholderAPI.setPlaceholders(player, message);}
+            message = PlaceholderAPI.setPlaceholders(player, message);
+        } else {
+            message = message.replace("%player_name%", player.getName());
+        }
 
         if (luckPermsEnabled) {
             User user = luckPerms.getUserManager().getUser(player.getUniqueId());
