@@ -28,7 +28,7 @@ dependencies {
     implementation("org.bstats:bstats-bukkit:3.0.2")
 }
 
-def targetJavaVersion = 21
+def targetJavaVersion = 17
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     sourceCompatibility = javaVersion
