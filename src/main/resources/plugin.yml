@@ -1,23 +1,4 @@
 name: CustomJoinLeave
-version: '${project.version}'
-main: zepsizola.me.customjoinleave.CustomJoinLeave
+version: '${version}'
+main: me.zepsizola.customjoinleave.CustomJoinLeave
 api-version: '1.20'
-
-folia-supported: true
-
-softdepend: [PlaceholderAPI, LuckPerms]
-loadbefore: [PlaceholderAPI, LuckPerms]
-
-commands:
-  vanishjoin:
-    description: "Sends a fake join message to all players."
-    usage: "/vanishjoin [player]"
-    aliases: [vj, vjoin]
-    permission: essentials.vanish
-    permission-message: "You do not have permission to use this command"
-  vanishleave:
-    description: "Sends a fake leave message to all players."
-    usage: "/vanishleave [player]"
-    aliases: [vl, vleave]
-    permission: essentials.vanish
-    permission-message: "You do not have permission to use this command"

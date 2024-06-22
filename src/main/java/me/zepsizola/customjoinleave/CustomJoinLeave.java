@@ -1,5 +1,6 @@
-package zepsizola.me.customjoinleave;
+package me.zepsizola.customjoinleave;
 
+import org.bstats.bukkit.Metrics;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -40,6 +41,10 @@ public class CustomJoinLeave extends JavaPlugin implements Listener, CommandExec
 
     @Override
     public void onEnable() {
+
+        // Initialize bStats
+        Metrics metrics = new Metrics(this, 22350);
+
         this.getServer().getPluginManager().registerEvents(this, this);
         this.saveDefaultConfig();
         File configFile = new File(getDataFolder(), "config.yml");
