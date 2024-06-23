@@ -5,6 +5,7 @@ plugins {
 
 group = 'me.zepsizola'
 version = '2.3'
+def projectName = 'CustomJoinLeave'
 
 repositories {
     mavenCentral()
@@ -60,6 +61,9 @@ shadowJar {
     relocate('org.bstats', 'me.zepsizola.customjoinleave.bstats')
     configurations = [project.configurations.runtimeClasspath]
     mergeServiceFiles()
+    archiveBaseName.set(projectName)
+    archiveVersion.set(version)
+    archiveClassifier.set('')
 }
 
 build.dependsOn shadowJar
