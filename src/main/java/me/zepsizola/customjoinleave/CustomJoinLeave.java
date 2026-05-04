@@ -21,6 +21,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR;
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.SECTION_CHAR;
@@ -31,6 +36,9 @@ public class CustomJoinLeave extends JavaPlugin implements Listener, CommandExec
     private boolean PAPIEnabled = false;
     private LuckPerms luckPerms;
     private boolean luckPermsEnabled = false;
+
+    // Tracks timestamps of join/leave messages per player for rate limiting
+    private final Map<UUID, List<Long>> messageTimes = new HashMap<>();
     private final String configJoinMessage = getConfig().getString("joinMessage", "<yellow>%player_name% <yellow>joined the game");
     private final String configLeaveMessage = getConfig().getString("leaveMessage", "<yellow>%player_name% <yellow>left the game");
     private final String configSilentJoinPermission = getConfig().getString("permissions.silentjoin", "essentials.silentjoin");
@@ -38,6 +46,8 @@ public class CustomJoinLeave extends JavaPlugin implements Listener, CommandExec
     private final String configVanishPermission = getConfig().getString("permissions.vanish", "essentials.vanish");
     private final String configVanishOnCommand = getConfig().getString("commands.vanish-on", "essentials:vanish on");
     private final String configVanishOffCommand = getConfig().getString("commands.vanish-off", "essentials:vanish off");
+    private final int configMessageLimit = getConfig().getInt("limit-join-leave-message", 4);
+    private final long configWindowMillis = getConfig().getLong("limit-window-seconds", 60) * 1000L;
 
     @Override
     public void onEnable() {
@@ -85,18 +95,52 @@ public class CustomJoinLeave extends JavaPlugin implements Listener, CommandExec
             getLogger().info("PlaceholderAPI not found. PAPI support disabled.");}
     }
 
+    /**
+     * Checks whether a player has exceeded the join/leave message limit within the last minute.
+     * If the limit is 0 or negative, rate limiting is disabled.
+     * @return true if the message should be suppressed
+     */
+    private boolean isRateLimited(Player player) {
+        if (configMessageLimit <= 0) {
+            return false;
+        }
+        UUID uuid = player.getUniqueId();
+        long now = System.currentTimeMillis();
+        long windowStart = now - configWindowMillis;
+
+        List<Long> times = messageTimes.computeIfAbsent(uuid, k -> new ArrayList<>());
+
+        // Remove entries older than the configured window
+        times.removeIf(t -> t < windowStart);
+
+        if (times.size() >= configMessageLimit) {
+            // getLogger().info("[RateLimit] Player " + player.getName() + " is rate limited (" + times.size() + "/" + configMessageLimit + " messages in the last minute). Suppressing message.");
+            return true;
+        }
+
+        times.add(now);
+        // getLogger().info("[RateLimit] Player " + player.getName() + " message allowed (" + times.size() + "/" + configMessageLimit + " messages in the last minute).");
+        return false;
+    }
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        Component joinMessage = player.hasPermission(configSilentJoinPermission) ? null : customMessage(configJoinMessage, player);
-        event.joinMessage(joinMessage);
+        if (player.hasPermission(configSilentJoinPermission) || isRateLimited(player)) {
+            event.joinMessage(null);
+        } else {
+            event.joinMessage(customMessage(configJoinMessage, player));
+        }
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        Component quitMessage = player.hasPermission(configSilentLeavePermission) ? null : customMessage(configLeaveMessage, player);
-        event.quitMessage(quitMessage);
+        if (player.hasPermission(configSilentLeavePermission) || isRateLimited(player)) {
+            event.quitMessage(null);
+        } else {
+            event.quitMessage(customMessage(configLeaveMessage, player));
+        }
     }
 
     private Component customMessage (String message, Player player){

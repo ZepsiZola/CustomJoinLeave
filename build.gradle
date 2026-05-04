@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'me.zepsizola'
-version = '2.3'
+version = '2.4'
 def projectName = 'CustomJoinLeave'
 
 repositories {
